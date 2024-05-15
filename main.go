@@ -45,7 +45,6 @@ func readInput() (<-chan Command, []string) {
 
 	go func(cmds []string, filePath *string) {
 		for i, cmd := range cmds {
-			//sepCmd := Split(cmd)
 			sepCmd := strings.Fields(cmd)
 			if i == 0 && len(sepCmd) == 1 {
 				log.Fatal("filepath not given")
@@ -113,8 +112,7 @@ func stdIn() []string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cmds := strings.Split(strings.TrimSpace(input), "|")
-	return cmds
+	return strings.Split(strings.TrimSpace(input), "|")
 }
 
 func readFile(path string) []string {
