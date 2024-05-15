@@ -73,16 +73,17 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 
 			command := Command{}
 			command.Name = strings.ToLower(sepCmd[0])
+
+			if command.Name == string(Grep) {
+				if len(sepCmd) < 2 {
+					log.Fatal("input is not correct")
+				}
+				command.Argument = sepCmd[1]
+			}
+
 			if filePath == "" {
 				filePath = sepCmd[len(sepCmd)-1]
 				wg.Done()
-			}
-			if command.Name == string(Grep) {
-				if len(sepCmd) >= 2 {
-					command.Argument = sepCmd[1]
-				} else {
-					log.Fatal("input is not correct")
-				}
 			}
 			out <- command
 		}
