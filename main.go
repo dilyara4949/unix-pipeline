@@ -79,7 +79,7 @@ func execute(cmds <-chan Command, input []string) []string {
 			case "grep":
 				grepFunc(&input, cmd.Argument)
 			case "sort":
-				sortFunc(input)
+				sort.Strings(input)
 			default:
 				log.Fatal("unknown command")
 			}
@@ -87,10 +87,6 @@ func execute(cmds <-chan Command, input []string) []string {
 	}(cmds)
 	wg.Wait()
 	return input
-}
-
-func sortFunc(input []string) {
-	sort.Strings(input)
 }
 
 func grepFunc(input *[]string, arg string) {
