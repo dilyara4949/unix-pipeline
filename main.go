@@ -13,9 +13,9 @@ import (
 type project struct{}
 
 type Project interface {
-	Run()
 	ReadInput() (<-chan Command, []string)
 	Execute(cmds <-chan Command, input []string) []string
+	PrintResult(res []string)
 }
 
 var app Project
@@ -39,10 +39,13 @@ func NewProject() Project {
 	return &project{}
 }
 
-func (p *project) Run() {
+func Run(p Project) {
 	cmds, out := p.ReadInput()
 	res := p.Execute(cmds, out)
+	p.PrintResult(res)
+}
 
+func (p *project) PrintResult(res []string) {
 	for _, line := range res {
 		fmt.Println(line)
 	}
@@ -140,5 +143,5 @@ func readFile(path string) []string {
 }
 
 func main() {
-	app.Run()
+	Run(app)
 }
