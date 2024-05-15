@@ -10,14 +10,20 @@ import (
 	"sync"
 )
 
-type Project struct{}
+type project struct{}
+
+type Project interface {
+	Run()
+	ReadInput() (<-chan Command, []string)
+	Execute(cmds <-chan Command, input []string) []string
+}
+
+var app Project
 
 type Command struct {
 	Name     string
 	Argument string
 }
-
-var project Project
 
 const (
 	Cat  = "cat"
@@ -25,16 +31,24 @@ const (
 	Sort = "sort"
 )
 
-func (p *Project) Run() {
-	cmds, out := readInput()
-	res := execute(cmds, out)
+func init() {
+	app = NewProject()
+}
+
+func NewProject() Project {
+	return &project{}
+}
+
+func (p *project) Run() {
+	cmds, out := p.ReadInput()
+	res := p.Execute(cmds, out)
 
 	for _, line := range res {
 		fmt.Println(line)
 	}
 }
 
-func readInput() (<-chan Command, []string) {
+func (p *project) ReadInput() (<-chan Command, []string) {
 	cmds := stdIn()
 
 	var wg sync.WaitGroup
@@ -73,7 +87,7 @@ func readInput() (<-chan Command, []string) {
 	return out, fileText
 }
 
-func execute(cmds <-chan Command, input []string) []string {
+func (p *project) Execute(cmds <-chan Command, input []string) []string {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func(cmds <-chan Command) {
@@ -124,5 +138,5 @@ func readFile(path string) []string {
 }
 
 func main() {
-	project.Run()
+	app.Run()
 }
