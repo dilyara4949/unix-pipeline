@@ -10,9 +10,22 @@ import (
 	"sync"
 )
 
+type Project struct{}
+
 type Command struct {
 	Name     string
 	Argument string
+}
+
+var project Project
+
+func (p *Project) Run() {
+	cmds, out := readInput()
+	res := execute(cmds, out)
+
+	for _, line := range res {
+		fmt.Println(line)
+	}
 }
 
 func readInput() (<-chan Command, []string) {
@@ -130,10 +143,5 @@ func readFile(path string) []string {
 }
 
 func main() {
-	cmds, out := readInput()
-	res := execute(cmds, out)
-
-	for _, line := range res {
-		fmt.Println(line)
-	}
+	project.Run()
 }
