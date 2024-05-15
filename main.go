@@ -25,10 +25,12 @@ type Command struct {
 	Argument string
 }
 
+type Operation string
+
 const (
-	Cat  = "cat"
-	Grep = "grep"
-	Sort = "sort"
+	Cat  Operation = "cat"
+	Grep Operation = "grep"
+	Sort Operation = "sort"
 )
 
 func NewProject() Project {
@@ -36,7 +38,6 @@ func NewProject() Project {
 }
 
 func Run(p Project) {
-	app = NewProject()
 	cmds, out := p.ReadInput()
 	res := p.Execute(cmds, out)
 	p.PrintResult(res)
@@ -66,7 +67,7 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 			if len(sepCmd) == 0 {
 				log.Fatal("input is not correct")
 			}
-			if filePath == "" && (len(sepCmd) == 1 || len(sepCmd) == 2 && sepCmd[0] == Grep) {
+			if filePath == "" && (len(sepCmd) == 1 || len(sepCmd) == 2 && sepCmd[0] == string(Grep)) {
 				log.Fatal("filepath not given")
 			}
 
@@ -76,7 +77,7 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 				filePath = sepCmd[len(sepCmd)-1]
 				wg.Done()
 			}
-			if command.Name == Grep {
+			if command.Name == string(Grep) {
 				if len(sepCmd) >= 2 {
 					command.Argument = sepCmd[1]
 				} else {
@@ -103,11 +104,11 @@ func (p *project) Execute(cmds <-chan Command, input []string) []string {
 		defer wg.Done()
 		for cmd := range cmds {
 			switch cmd.Name {
-			case Cat:
+			case string(Cat):
 				continue
-			case Grep:
+			case string(Grep):
 				grepFunc(&input, cmd.Argument)
-			case Sort:
+			case string(Sort):
 				sort.Strings(input)
 			default:
 				log.Fatal("unknown command")
@@ -147,5 +148,6 @@ func readFile(path string) ([]string, error) {
 }
 
 func main() {
+	app = NewProject()
 	Run(app)
 }
