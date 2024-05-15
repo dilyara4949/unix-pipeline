@@ -63,10 +63,10 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 	var filePath string
 	out := make(chan Command, len(cmds))
 
-	go func(cmds []string, filePath *string) {
+	go func(cmds []string) {
 		for _, cmd := range cmds {
 			sepCmd := strings.Fields(cmd)
-			if *filePath == "" && (len(sepCmd) == 1 || len(sepCmd) == 2 && sepCmd[0] == Grep) {
+			if filePath == "" && (len(sepCmd) == 1 || len(sepCmd) == 2 && sepCmd[0] == Grep) {
 				log.Fatal("filepath not given")
 			} else if len(sepCmd) == 0 {
 				log.Fatal("input is not correct")
@@ -74,8 +74,8 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 
 			command := Command{}
 			command.Name = strings.ToLower(sepCmd[0])
-			if *filePath == "" {
-				*filePath = sepCmd[len(sepCmd)-1]
+			if filePath == "" {
+				filePath = sepCmd[len(sepCmd)-1]
 				wg.Done()
 			}
 			if command.Name == Grep {
@@ -88,7 +88,7 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 			out <- command
 		}
 		close(out)
-	}(cmds, &filePath)
+	}(cmds)
 
 	wg.Wait()
 	fileText, err := readFile(filePath)
