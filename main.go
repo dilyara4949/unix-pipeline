@@ -31,15 +31,12 @@ const (
 	Sort = "sort"
 )
 
-func init() {
-	app = NewProject()
-}
-
 func NewProject() Project {
 	return &project{}
 }
 
 func Run(p Project) {
+	app = NewProject()
 	cmds, out := p.ReadInput()
 	res := p.Execute(cmds, out)
 	p.PrintResult(res)
@@ -66,10 +63,11 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 	go func(cmds []string) {
 		for _, cmd := range cmds {
 			sepCmd := strings.Fields(cmd)
+			if len(sepCmd) == 0 {
+				log.Fatal("input is not correct")
+			}
 			if filePath == "" && (len(sepCmd) == 1 || len(sepCmd) == 2 && sepCmd[0] == Grep) {
 				log.Fatal("filepath not given")
-			} else if len(sepCmd) == 0 {
-				log.Fatal("input is not correct")
 			}
 
 			command := Command{}
