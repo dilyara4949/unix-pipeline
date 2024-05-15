@@ -19,6 +19,12 @@ type Command struct {
 
 var project Project
 
+const (
+	Cat  = "cat"
+	Grep = "grep"
+	Sort = "sort"
+)
+
 func (p *Project) Run() {
 	cmds, out := readInput()
 	res := execute(cmds, out)
@@ -74,11 +80,11 @@ func execute(cmds <-chan Command, input []string) []string {
 		defer wg.Done()
 		for cmd := range cmds {
 			switch cmd.Name {
-			case "cat":
+			case Cat:
 				continue
-			case "grep":
+			case Grep:
 				grepFunc(&input, cmd.Argument)
-			case "sort":
+			case Sort:
 				sort.Strings(input)
 			default:
 				log.Fatal("unknown command")
