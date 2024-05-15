@@ -52,7 +52,10 @@ func (p *project) PrintResult(res []string) {
 }
 
 func (p *project) ReadInput() (<-chan Command, []string) {
-	cmds := stdIn()
+	cmds, err := stdIn()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -88,7 +91,10 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 	}(cmds, &filePath)
 
 	wg.Wait()
-	fileText := readFile(filePath)
+	fileText, err := readFile(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return out, fileText
 }
 
@@ -125,21 +131,21 @@ func grepFunc(input *[]string, arg string) {
 	}
 }
 
-func stdIn() []string {
+func stdIn() ([]string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	input, err := reader.ReadString('\n')
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return strings.Split(strings.TrimSpace(input), "|")
+	return strings.Split(strings.TrimSpace(input), "|"), nil
 }
 
-func readFile(path string) []string {
+func readFile(path string) ([]string, error) {
 	dat, err := os.ReadFile(path)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return strings.Split(string(dat), "\n")
+	return strings.Split(string(dat), "\n"), nil
 }
 
 func main() {
