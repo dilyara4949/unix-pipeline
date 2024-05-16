@@ -9,16 +9,6 @@ import (
 	"strings"
 )
 
-type project struct{}
-
-type Project interface {
-	ReadInput() ([]Command, []string)
-	Execute([]Command, []string) []string
-	PrintResult(res []string)
-}
-
-var app Project
-
 type Command struct {
 	Name     Operation
 	Argument string
@@ -32,23 +22,13 @@ const (
 	Sort Operation = "sort"
 )
 
-func NewProject() Project {
-	return &project{}
-}
-
-func Run(p Project) {
-	cmds, out := p.ReadInput()
-	res := p.Execute(cmds, out)
-	p.PrintResult(res)
-}
-
-func (p *project) PrintResult(res []string) {
+func PrintResult(res []string) {
 	for _, line := range res {
 		fmt.Println(line)
 	}
 }
 
-func (p *project) ReadInput() ([]Command, []string) {
+func ReadInput() ([]Command, []string) {
 	cmds, err := stdIn()
 	if err != nil {
 		log.Fatal(err)
@@ -86,7 +66,7 @@ func (p *project) ReadInput() ([]Command, []string) {
 	return out, fileText
 }
 
-func (p *project) Execute(cmds []Command, input []string) []string {
+func Execute(cmds []Command, input []string) []string {
 	for _, cmd := range cmds {
 		switch cmd.Name {
 		case Cat:
@@ -132,6 +112,7 @@ func readFile(path string) ([]string, error) {
 }
 
 func main() {
-	app = NewProject()
-	Run(app)
+	cmds, out := ReadInput()
+	res := Execute(cmds, out)
+	PrintResult(res)
 }
