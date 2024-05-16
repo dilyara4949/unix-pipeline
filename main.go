@@ -67,17 +67,14 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 			if len(sepCmd) == 0 {
 				log.Fatal("input is not correct")
 			}
-			if filePath == "" && (len(sepCmd) == 1 || len(sepCmd) == 2 && sepCmd[0] == string(Grep)) {
-				log.Fatal("filepath not given")
+			if len(sepCmd) < 2 && (filePath == "" || sepCmd[0] == string(Grep)) {
+				log.Fatal("input is not correct")
 			}
 
 			command := Command{}
 			command.Name = strings.ToLower(sepCmd[0])
 
 			if command.Name == string(Grep) {
-				if len(sepCmd) < 2 {
-					log.Fatal("input is not correct")
-				}
 				command.Argument = sepCmd[1]
 			}
 
