@@ -21,7 +21,7 @@ type Project interface {
 var app Project
 
 type Command struct {
-	Name     string
+	Name     Operation
 	Argument string
 }
 
@@ -67,14 +67,15 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 			if len(sepCmd) == 0 {
 				log.Fatal("input is not correct")
 			}
-			if len(sepCmd) < 2 && (filePath == "" || sepCmd[0] == string(Grep)) {
+
+			command := Command{}
+			command.Name = Operation(strings.ToLower(sepCmd[0]))
+
+			if len(sepCmd) < 2 && (filePath == "" || command.Name == Grep) {
 				log.Fatal("input is not correct")
 			}
 
-			command := Command{}
-			command.Name = strings.ToLower(sepCmd[0])
-
-			if command.Name == string(Grep) {
+			if command.Name == Grep {
 				command.Argument = sepCmd[1]
 			}
 
@@ -102,11 +103,11 @@ func (p *project) Execute(cmds <-chan Command, input []string) []string {
 		defer wg.Done()
 		for cmd := range cmds {
 			switch cmd.Name {
-			case string(Cat):
+			case Cat:
 				continue
-			case string(Grep):
+			case Grep:
 				grepFunc(&input, cmd.Argument)
-			case string(Sort):
+			case Sort:
 				sort.Strings(input)
 			default:
 				log.Fatal("unknown command")
