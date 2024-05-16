@@ -7,14 +7,13 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"sync"
 )
 
 type project struct{}
 
 type Project interface {
-	ReadInput() (<-chan Command, []string)
-	Execute(cmds <-chan Command, input []string) []string
+	ReadInput() ([]Command, []string)
+	Execute([]Command, []string) []string
 	PrintResult(res []string)
 }
 
@@ -49,46 +48,37 @@ func (p *project) PrintResult(res []string) {
 	}
 }
 
-func (p *project) ReadInput() (<-chan Command, []string) {
+func (p *project) ReadInput() ([]Command, []string) {
 	cmds, err := stdIn()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-
 	var filePath string
-	out := make(chan Command, len(cmds))
+	out := make([]Command, len(cmds))
 
-	go func(cmds []string) {
-		for _, cmd := range cmds {
-			sepCmd := strings.Fields(cmd)
-			if len(sepCmd) == 0 {
-				log.Fatal("input is not correct")
-			}
-
-			command := Command{}
-			command.Name = Operation(strings.ToLower(sepCmd[0]))
-
-			if len(sepCmd) < 2 && (filePath == "" || command.Name == Grep) {
-				log.Fatal("input is not correct")
-			}
-
-			if command.Name == Grep {
-				command.Argument = sepCmd[1]
-			}
-
-			if filePath == "" {
-				filePath = sepCmd[len(sepCmd)-1]
-				wg.Done()
-			}
-			out <- command
+	for i, cmd := range cmds {
+		sepCmd := strings.Fields(cmd)
+		if len(sepCmd) == 0 {
+			log.Fatal("input is not correct")
 		}
-		close(out)
-	}(cmds)
 
-	wg.Wait()
+		command := Command{}
+		command.Name = Operation(strings.ToLower(sepCmd[0]))
+
+		if len(sepCmd) < 2 && (filePath == "" || command.Name == Grep) {
+			log.Fatal("input is not correct")
+		}
+
+		if command.Name == Grep {
+			command.Argument = sepCmd[1]
+		}
+
+		if filePath == "" {
+			filePath = sepCmd[len(sepCmd)-1]
+		}
+		out[i] = command
+	}
 	fileText, err := readFile(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -96,25 +86,20 @@ func (p *project) ReadInput() (<-chan Command, []string) {
 	return out, fileText
 }
 
-func (p *project) Execute(cmds <-chan Command, input []string) []string {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func(cmds <-chan Command) {
-		defer wg.Done()
-		for cmd := range cmds {
-			switch cmd.Name {
-			case Cat:
-				continue
-			case Grep:
-				grepFunc(&input, cmd.Argument)
-			case Sort:
-				sort.Strings(input)
-			default:
-				log.Fatal("unknown command")
-			}
+func (p *project) Execute(cmds []Command, input []string) []string {
+	for _, cmd := range cmds {
+		switch cmd.Name {
+		case Cat:
+			continue
+		case Grep:
+			grepFunc(&input, cmd.Argument)
+		case Sort:
+			sort.Strings(input)
+		default:
+			log.Fatal("unknown command")
 		}
-	}(cmds)
-	wg.Wait()
+	}
+
 	return input
 }
 
