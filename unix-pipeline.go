@@ -1,4 +1,4 @@
-package unix_pipeline
+package unixpipeline
 
 type Command struct {
 	Name     Operation
