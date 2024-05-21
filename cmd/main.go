@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	app "github.com/dilyara4949/unix-pipeline/internal"
 )
@@ -10,14 +9,12 @@ import (
 func main() {
 	cmds, out, err := app.ReadInput()
 	if err != nil {
-		log.Println(err.Error())
-		os.Exit(0)
+		log.Fatal(err.Error())
 	}
 
 	res, err := app.Execute(cmds, out)
 	if err != nil {
-		log.Println(err.Error())
-		os.Exit(0)
+		log.Fatal(err.Error())
 	}
 
 	for _, line := range res {
