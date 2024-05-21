@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"sort"
+	s "sort"
 	"strings"
 
 	app "github.com/dilyara4949/unix-pipeline"
@@ -13,7 +13,7 @@ import (
 const (
 	cat            app.Operation = "cat"
 	grep           app.Operation = "grep"
-	ssort          app.Operation = "sort"
+	sort           app.Operation = "sort"
 	operationOrder int           = 0
 	argumentOrder  int           = 1
 )
@@ -77,8 +77,8 @@ func Execute(cmds []app.Command, input []string) ([]string, error) {
 			if err != nil {
 				return nil, err
 			}
-		case ssort:
-			sort.Strings(input)
+		case sort:
+			s.Strings(input)
 		default:
 			return nil, fmt.Errorf("unknown command")
 		}
