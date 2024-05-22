@@ -6,19 +6,24 @@ import (
 	"os"
 	s "sort"
 	"strings"
-
-	app "github.com/dilyara4949/unix-pipeline"
 )
+
+type Command struct {
+	Name     Operation
+	Argument string
+}
+
+type Operation string
 
 const (
-	cat            app.Operation = "cat"
-	grep           app.Operation = "grep"
-	sort           app.Operation = "sort"
-	operationOrder int           = 0
-	argumentOrder  int           = 1
+	cat            Operation = "cat"
+	grep           Operation = "grep"
+	sort           Operation = "sort"
+	operationOrder int       = 0
+	argumentOrder  int       = 1
 )
 
-func ReadInput() ([]app.Command, []string, error) {
+func ReadInput() ([]Command, []string, error) {
 	cmds, err := stdIn()
 	if err != nil {
 		return nil, nil, err
@@ -26,7 +31,7 @@ func ReadInput() ([]app.Command, []string, error) {
 
 	var filePath string
 
-	out := make([]app.Command, len(cmds))
+	out := make([]Command, len(cmds))
 
 	for order, cmd := range cmds {
 		sepCmd := strings.Fields(cmd)
@@ -34,8 +39,8 @@ func ReadInput() ([]app.Command, []string, error) {
 			return nil, nil, fmt.Errorf("input is not correct")
 		}
 
-		c := app.Command{}
-		c.Name = app.Operation(strings.ToLower(sepCmd[operationOrder]))
+		c := Command{}
+		c.Name = Operation(strings.ToLower(sepCmd[operationOrder]))
 
 		if len(sepCmd) <= argumentOrder && (filePath == "" || c.Name == grep) {
 			return nil, nil, fmt.Errorf("input is not correct")
@@ -60,7 +65,7 @@ func ReadInput() ([]app.Command, []string, error) {
 	return out, fileText, nil
 }
 
-func Execute(cmds []app.Command, input []string) ([]string, error) {
+func Execute(cmds []Command, input []string) ([]string, error) {
 	var err error
 
 	for _, cmd := range cmds {

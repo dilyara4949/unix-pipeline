@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	app "github.com/dilyara4949/unix-pipeline/internal"
+	app "github.com/dilyara4949/unix-pipeline/pkg"
 )
 
 func main() {
