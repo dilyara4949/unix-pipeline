@@ -78,7 +78,7 @@ func Execute(cmds []Command, input []string) ([]string, error) {
 				}
 			}
 		case grep:
-			err = grepFunc(&input, cmd.Argument)
+			input, err = grepFunc(input, cmd.Argument)
 			if err != nil {
 				return nil, err
 			}
@@ -92,18 +92,18 @@ func Execute(cmds []Command, input []string) ([]string, error) {
 	return input, err
 }
 
-func grepFunc(input *[]string, arg string) error {
+func grepFunc(input []string, arg string) ([]string, error) {
 	if arg == "" {
-		return fmt.Errorf("empty arg for grep")
+		return nil, fmt.Errorf("empty arg for grep")
 	}
 
-	for i := len(*input) - 1; i >= 0; i-- {
-		if !strings.Contains((*input)[i], arg) {
-			*input = append((*input)[:i], (*input)[i+1:]...)
+	for i := len(input) - 1; i >= 0; i-- {
+		if !strings.Contains(input[i], arg) {
+			input = append(input[:i], input[i+1:]...)
 		}
 	}
 
-	return nil
+	return input, nil
 }
 
 func stdIn() ([]string, error) {
